@@ -1,3 +1,4 @@
+![image](https://github.com/Akshat3144/The_Ultimate_Team_Maker/assets/144452203/af5d5833-83ec-4c54-a32e-b09fef8a69fa)
 This project is a C++ program that generates balanced teams based on user-provided data. It aims to create fair and diverse teams by considering various skills and attributes of individuals.
 
 ## Features
@@ -44,5 +45,4 @@ This project uses the following C++ libraries:
 - `<algorithm>`
 - `<random>`
 
-  ![image](https://github.com/Akshat3144/The_Ultimate_Team_Maker/assets/144452203/203022a4-35f6-497c-856f-81426b7e44bb)
 ## PS - Front-end already done, Working on Back-end.
