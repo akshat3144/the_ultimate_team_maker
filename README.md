@@ -43,3 +43,6 @@ This project uses the following C++ libraries:
 - `<map>`
 - `<algorithm>`
 - `<random>`
+
+  ![image](https://github.com/Akshat3144/The_Ultimate_Team_Maker/assets/144452203/203022a4-35f6-497c-856f-81426b7e44bb)
+## PS - Front-end already done, Working on Back-end.
