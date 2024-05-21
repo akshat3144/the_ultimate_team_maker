@@ -1,6 +1,6 @@
 ![image](https://github.com/Akshat3144/The_Ultimate_Team_Maker/assets/144452203/af5d5833-83ec-4c54-a32e-b09fef8a69fa)
+## PPT -> https://docs.google.com/presentation/d/1A1w7OnZ0jGUj3B8vzU-sUt9ZLR3hAszg/edit?usp=sharing&ouid=110487790070010327190&rtpof=true&sd=true
 This project is a C++ program that generates balanced teams based on user-provided data. It aims to create fair and diverse teams by considering various skills and attributes of individuals.
-[Uploading PDS Presentation.pptx…]()
 
 ## Features
 
