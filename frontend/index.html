@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Maker</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="text-center py-4">
+            <h1 class="display-4 fw-bold"><i class="fas fa-users text-primary"></i> Team Maker</h1>
+            <p class="lead text-muted">Create balanced teams quickly and easily</p>
+        </header>
+
+        <div class="row">
+            <div class="col-md-10 mx-auto">
+                <!-- Upload Section -->
+                <section id="csv-upload" class="content-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-file-upload me-2"></i>Upload Data</h2>
+                    </div>
+                    <p class="text-muted mb-4">Upload a CSV file with your participants' data to get started.</p>
+                    
+                    <div class="upload-area mb-3">
+                        <input type="file" id="csv-file" accept=".csv" class="hidden">
+                        <label for="csv-file" class="upload-label">
+                            <i class="fas fa-cloud-upload-alt fa-2x mb-3"></i>
+                            <span>Drag & drop your CSV file or click to browse</span>
+                            <span id="file-name" class="small d-block text-muted mt-2">No file selected</span>
+                        </label>
+                    </div>
+                    
+                    <div class="d-flex align-items-center">
+                        <button id="upload-btn" class="btn btn-primary" disabled>
+                            <i class="fas fa-upload me-2"></i>Upload
+                        </button>
+                        <div id="upload-status" class="ms-3"></div>
+                    </div>
+                </section>
+
+                <!-- Team Generation Section -->
+                <section id="team-generation" class="content-section" style="display: none;">
+                    <div class="section-header">
+                        <h2><i class="fas fa-cogs me-2"></i>Configure Teams</h2>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="form-floating mb-3">
+                                <input type="number" class="form-control" id="num-teams" min="2" value="2">
+                                <label for="num-teams">Number of Teams</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Generation Method</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex flex-wrap gap-4">
+                                <div class="form-check form-check-inline method-card">
+                                    <input class="form-check-input" type="radio" id="random" name="gen-method" value="random" checked>
+                                    <label class="form-check-label" for="random">
+                                        <i class="fas fa-random fa-2x mb-2"></i>
+                                        <span>Random</span>
+                                        <small class="d-block text-muted">Teams created with random distribution</small>
+                                    </label>
+                                </div>
+                                
+                                <div class="form-check form-check-inline method-card">
+                                    <input class="form-check-input" type="radio" id="categorical" name="gen-method" value="categorical">
+                                    <label class="form-check-label" for="categorical">
+                                        <i class="fas fa-balance-scale fa-2x mb-2"></i>
+                                        <span>Categorical</span>
+                                        <small class="d-block text-muted">Teams balanced by categories</small>
+                                    </label>
+                                </div>
+                                
+                                <div class="form-check form-check-inline method-card">
+                                    <input class="form-check-input" type="radio" id="random_categorical" name="gen-method" value="random_categorical">
+                                    <label class="form-check-label" for="random_categorical">
+                                        <i class="fas fa-dice fa-2x mb-2"></i>
+                                        <span>Random with Categories</span>
+                                        <small class="d-block text-muted">Random teams with category considerations</small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="categories-section" class="mb-4" style="display: none;">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Categories & Weights</h5>
+                                <span class="badge bg-info" data-bs-toggle="tooltip" title="Select categories and assign weights. Weights must sum to 1.0">
+                                    <i class="fas fa-info-circle"></i>
+                                </span>
+                            </div>
+                            <div class="card-body">
+                                <div id="categories-container" class="mb-3">
+                                    <!-- Categories will be added here dynamically -->
+                                </div>
+                                <div class="alert alert-danger d-none" id="weight-sum-warning">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    Weights must sum to 1.0
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button id="generate-btn" class="btn btn-primary btn-lg">
+                            <i class="fas fa-users me-2"></i>Generate Teams
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Results Section -->
+                <section id="results" class="content-section" style="display: none;">
+                    <div class="section-header">
+                        <h2><i class="fas fa-users me-2"></i>Generated Teams</h2>
+                    </div>
+                    
+                    <div class="teams-stats mb-4">
+                        <div class="row text-center">
+                            <div class="col-md-4">
+                                <div class="stat-card">
+                                    <h3 id="team-count">0</h3>
+                                    <p>Teams</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat-card">
+                                    <h3 id="member-count">0</h3>
+                                    <p>Total Members</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat-card">
+                                    <h3 id="members-per-team">0</h3>
+                                    <p>Members Per Team</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="teams-container" class="mb-4">
+                        <!-- Teams will be displayed here -->
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <button id="download-btn" class="btn btn-success">
+                            <i class="fas fa-download me-2"></i>Download Teams
+                        </button>
+                        <button id="new-generation-btn" class="btn btn-outline-primary">
+                            <i class="fas fa-sync me-2"></i>Generate New Teams
+                        </button>
+                    </div>
+                </section>
+            </div>
+        </div>
+        
+        <footer class="mt-5 text-center text-muted">
+            <p>Team Maker &copy; 2025 | <a href="#" class="text-decoration-none">About</a> | <a href="#" class="text-decoration-none">Help</a></p>
+        </footer>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

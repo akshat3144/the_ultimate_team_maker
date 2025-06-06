@@ -13,7 +13,7 @@ protected:
     vector<Person> members;
 
 public:
-    vector<Person> getmembers();
+    vector<Person> getmembers() const; // Added const here
     void addPerson(const Person &Person);
     void printTeamWithWeights() const;
     void printTeamWithoutWeights() const;

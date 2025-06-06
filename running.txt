@@ -1,0 +1,12 @@
+on terminal ->
+
+# Navigate to the project directory
+cd "c:\Users\nitro 5\Desktop\Projects\Team Maker"
+
+# Create a bin directory if it doesn't exist
+mkdir -p bin
+
+# Compile the source files (using g++ or your preferred compiler)
+g++ -o bin/team_maker_headers.exe cpp/src/team_maker_headers.cpp
+g++ -o bin/team_maker_api.exe cpp/src/team_maker_api.cpp cpp/src/Person.cpp cpp/src/Team.cpp cpp/src/TeamGenerator.cpp cpp/src/RandomTeamGenerator.cpp cpp/src/RandomCategoricalTeamGenerator.cpp cpp/src/Utilities.cpp
+g++ -o bin/team_maker.exe cpp/src/main.cpp cpp/src/Person.cpp cpp/src/Team.cpp cpp/src/TeamGenerator.cpp cpp/src/RandomTeamGenerator.cpp cpp/src/RandomCategoricalTeamGenerator.cpp cpp/src/Utilities.cpp
