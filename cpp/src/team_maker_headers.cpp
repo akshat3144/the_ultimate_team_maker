@@ -3,6 +3,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <algorithm>
 using namespace std;
 
 int main(int argc, char *argv[])
@@ -25,12 +26,20 @@ int main(int argc, char *argv[])
     string line;
     if (getline(file, line))
     {
+        // Remove any carriage returns or line feeds
+        line.erase(remove(line.begin(), line.end(), '\r'), line.end());
+        line.erase(remove(line.begin(), line.end(), '\n'), line.end());
+
         istringstream headerSS(line);
         string header;
         vector<string> headers;
 
         while (getline(headerSS, header, ','))
         {
+            // Trim any whitespace
+            header.erase(0, header.find_first_not_of(" \t"));
+            header.erase(header.find_last_not_of(" \t") + 1);
+
             headers.push_back(header);
         }
 

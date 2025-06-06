@@ -45,6 +45,21 @@ async def upload_csv(file: UploadFile = File(...)):
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
         
+        # Verify CSV is properly formatted - basic check
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                first_line = f.readline().strip()
+                if not first_line or ',' not in first_line:
+                    return JSONResponse(
+                        status_code=400,
+                        content={"error": "Invalid CSV format. File must contain comma-separated headers."}
+                    )
+        except UnicodeDecodeError:
+            return JSONResponse(
+                status_code=400,
+                content={"error": "Invalid file encoding. Please use UTF-8."}
+            )
+        
         # Determine the base directory (handles both local and deployed environments)
         base_dir = os.getcwd()
         bin_dir = os.path.join(base_dir, "bin")
@@ -56,9 +71,16 @@ async def upload_csv(file: UploadFile = File(...)):
         # Run the C++ executable to get the headers
         cpp_exec_path = os.path.join(bin_dir, "team_maker_headers.exe")
         
+        # Log the path to help with debugging
+        print(f"Using executable at: {cpp_exec_path}")
+        print(f"File path: {file_path}")
+        
         # Make sure the executable exists
         if not os.path.exists(cpp_exec_path):
-            raise HTTPException(status_code=500, detail="C++ executable not found. Make sure to build the headers utility.")
+            return JSONResponse(
+                status_code=500,
+                content={"error": "C++ executable not found. Make sure to build the headers utility."}
+            )
         
         # Run the executable to extract headers with better error handling
         try:
@@ -66,33 +88,52 @@ async def upload_csv(file: UploadFile = File(...)):
                 [cpp_exec_path, file_path],
                 capture_output=True,
                 text=True,
-                check=True
+                check=False  # Don't raise exception, handle manually
             )
             
-            # Clean the output to remove any control characters that might cause JSON parsing issues
-            cleaned_output = ''.join(c for c in result.stdout if c >= ' ' or c in ['\n', '\r', '\t'])
+            if result.returncode != 0:
+                return JSONResponse(
+                    status_code=400,
+                    content={"error": f"Error processing CSV: {result.stderr}"}
+                )
             
-            # Parse the output (headers)
-            headers = json.loads(cleaned_output)
+            # Clean the output to remove any control characters
+            cleaned_output = ''.join(c for c in result.stdout if ord(c) >= 32 or c in ['\n', '\r', '\t'])
             
-            return {
-                "message": "CSV uploaded successfully",
-                "headers": headers,
-                "file_path": file_path
-            }
-        except subprocess.CalledProcessError as e:
-            return JSONResponse(
-                status_code=400,
-                content={"error": f"Error processing CSV: {e.stderr}"}
-            )
-        except json.JSONDecodeError as e:
-            # If JSON parsing fails, try to return the raw output for debugging
-            return JSONResponse(
-                status_code=400,
-                content={
-                    "error": f"Failed to parse headers: {str(e)}", 
-                    "raw_output": cleaned_output[:200]  # Include part of the raw output for debugging
+            # Try parsing the JSON output
+            try:
+                headers = json.loads(cleaned_output)
+                
+                # Additional validation
+                if not headers or not isinstance(headers, list):
+                    return JSONResponse(
+                        status_code=400,
+                        content={
+                            "error": "Invalid headers format", 
+                            "raw_output": cleaned_output[:200]
+                        }
+                    )
+                
+                # Filter out any empty headers or newline characters
+                headers = [h for h in headers if h and h.strip() and not h.startswith('\n') and not h.startswith('\r')]
+                
+                return {
+                    "message": "CSV uploaded successfully",
+                    "headers": headers,
+                    "file_path": file_path
                 }
+            except json.JSONDecodeError as e:
+                return JSONResponse(
+                    status_code=400,
+                    content={
+                        "error": f"Failed to parse headers: {str(e)}", 
+                        "raw_output": cleaned_output[:200]
+                    }
+                )
+        except Exception as e:
+            return JSONResponse(
+                status_code=500,
+                content={"error": f"Error running headers executable: {str(e)}"}
             )
     except Exception as e:
         return JSONResponse(

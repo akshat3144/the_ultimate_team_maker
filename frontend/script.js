@@ -161,6 +161,15 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    // Validate file extension
+    if (!file.name.toLowerCase().endsWith(".csv")) {
+      showToast("Please select a valid CSV file.", "error");
+      uploadStatus.innerHTML =
+        '<i class="fas fa-exclamation-circle me-2"></i> Invalid file type';
+      uploadStatus.className = "status-indicator status-error";
+      return;
+    }
+
     const formData = new FormData();
     formData.append("file", file);
 
@@ -178,7 +187,16 @@ document.addEventListener("DOMContentLoaded", () => {
       } catch (parseError) {
         console.error("Failed to parse response:", parseError);
         console.log("Raw response:", text);
-        throw new Error("Server returned invalid JSON");
+
+        // More user-friendly error message
+        uploadStatus.innerHTML =
+          '<i class="fas fa-exclamation-circle me-2"></i> Server returned invalid format';
+        uploadStatus.className = "status-indicator status-error";
+        showToast(
+          "The server response couldn't be processed. Please try a different CSV file.",
+          "error"
+        );
+        return;
       }
 
       if (response.ok) {
@@ -198,22 +216,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
         showToast("CSV file uploaded successfully!", "success");
       } else {
-        uploadStatus.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i> ${
-          data.error || "Upload failed"
-        }`;
+        let errorMessage = data.error || "Upload failed";
+        uploadStatus.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i> ${errorMessage}`;
         uploadStatus.className = "status-indicator status-error";
-        showToast(data.error || "Failed to upload file.", "error");
+
+        // Provide more context in the toast message
+        if (errorMessage.includes("Invalid CSV")) {
+          showToast(
+            "Your CSV file appears to be invalid. Please check the format.",
+            "error"
+          );
+        } else {
+          showToast(errorMessage, "error");
+        }
 
         // Log additional error details if available
         if (data.raw_output) {
-          console.error("Raw output from server:", data.raw_output);
+          console.log("Raw output from server:", data.raw_output);
         }
       }
     } catch (error) {
       uploadStatus.innerHTML =
         '<i class="fas fa-exclamation-circle me-2"></i> Upload error';
       uploadStatus.className = "status-indicator status-error";
-      showToast("An error occurred during upload. Please try again.", "error");
+      showToast(
+        "Network error during upload. Please check your connection and try again.",
+        "error"
+      );
       console.error("Error:", error);
     }
   }
