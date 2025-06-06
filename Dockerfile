@@ -11,12 +11,8 @@ RUN apt-get update && apt-get install -y \
 # Copy all project files
 COPY . .
 
-# Create bin directory and frontend directory if they don't exist
+# Create bin directory
 RUN mkdir -p bin
-RUN mkdir -p frontend
-
-# Copy frontend files directly to /app/frontend (not relative path)
-COPY frontend/ /app/frontend/
 
 # Compile C++ files
 RUN g++ -o bin/team_maker_headers.exe cpp/src/team_maker_headers.cpp
@@ -28,5 +24,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Set environment variables
 ENV PORT=8000
 
-# Use shell form of CMD so environment variables are properly expanded
+# Command to run the application
 CMD uvicorn api.main:app --host 0.0.0.0 --port ${PORT}
