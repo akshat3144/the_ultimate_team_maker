@@ -131,7 +131,34 @@ async def generate_teams(request: TeamGenerationRequest):
 # Mount the static files
 app.mount("/", StaticFiles(directory="../frontend", html=True), name="frontend")
 
-# Route for the main page
-@app.get("/")
-def read_root():
-    return FileResponse("../frontend/index.html")
+# Get the absolute path to the frontend directory
+frontend_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend")
+
+# Check if directory exists for local development
+if os.path.exists(frontend_dir):
+    # Local development - use relative path
+    app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
+    
+    @app.get("/")
+    def read_root():
+        return FileResponse(os.path.join(frontend_dir, "index.html"))
+else:
+    # Production on Render - frontend should be in the same directory as the app
+    app_dir = os.path.dirname(os.path.abspath(__file__))
+    render_frontend_dir = os.path.join(os.path.dirname(app_dir), "frontend")
+    
+    # If still doesn't exist, try other common locations
+    if not os.path.exists(render_frontend_dir):
+        render_frontend_dir = os.path.join(os.getcwd(), "frontend")
+    
+    if os.path.exists(render_frontend_dir):
+        app.mount("/", StaticFiles(directory=render_frontend_dir, html=True), name="frontend")
+        
+        @app.get("/")
+        def read_root():
+            return FileResponse(os.path.join(render_frontend_dir, "index.html"))
+    else:
+        # Fallback if no frontend directory is found
+        @app.get("/")
+        def read_root():
+            return {"message": "API is running. Frontend directory not found."}
