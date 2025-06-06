@@ -1,5 +1,3 @@
-on terminal ->
-
 # Navigate to the project directory
 cd "c:\Users\nitro 5\Desktop\Projects\Team Maker"
 
