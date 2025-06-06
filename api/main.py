@@ -1,12 +1,12 @@
+import os
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 import subprocess
 import tempfile
-import os
-import json
 import shutil
+import json
 from typing import List, Optional
 from pydantic import BaseModel
 
@@ -15,10 +15,10 @@ app = FastAPI(title="Team Maker API")
 # Enable CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods
-    allow_headers=["*"],  # Allows all headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 class CategoryWeight(BaseModel):
@@ -30,7 +30,7 @@ class TeamGenerationRequest(BaseModel):
     num_teams: int
     generation_type: str  # 'random', 'categorical', 'random_categorical'
     categories: Optional[List[CategoryWeight]] = None
-    file_path: str  # Add this line
+    file_path: str
 
 @app.post("/upload-csv/")
 async def upload_csv(file: UploadFile = File(...)):
@@ -43,8 +43,16 @@ async def upload_csv(file: UploadFile = File(...)):
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
         
+        # Determine the base directory (handles both local and deployed environments)
+        base_dir = os.getcwd()
+        bin_dir = os.path.join(base_dir, "bin")
+        
+        # Handle case where we're in the API directory locally
+        if os.path.basename(base_dir) == "api":
+            bin_dir = os.path.join(os.path.dirname(base_dir), "bin")
+        
         # Run the C++ executable to get the headers
-        cpp_exec_path = os.path.join(os.getcwd(), "..", "bin", "team_maker_headers.exe")
+        cpp_exec_path = os.path.join(bin_dir, "team_maker_headers.exe")
         
         # Make sure the executable exists
         if not os.path.exists(cpp_exec_path):
@@ -80,13 +88,21 @@ async def upload_csv(file: UploadFile = File(...)):
 @app.post("/generate-teams/")
 async def generate_teams(request: TeamGenerationRequest):
     try:
-        file_path = request.file_path  # Add file_path to the TeamGenerationRequest model
+        file_path = request.file_path
         # Check if file exists
         if not os.path.exists(file_path):
             raise HTTPException(status_code=400, detail="File not found. Please upload the CSV file again.")
         
+        # Determine the base directory (handles both local and deployed environments)
+        base_dir = os.getcwd()
+        bin_dir = os.path.join(base_dir, "bin")
+        
+        # Handle case where we're in the API directory locally
+        if os.path.basename(base_dir) == "api":
+            bin_dir = os.path.join(os.path.dirname(base_dir), "bin")
+        
         # Set up the command to run the team generator executable
-        cpp_exec_path = os.path.join(os.getcwd(), "..", "bin", "team_maker_api.exe")
+        cpp_exec_path = os.path.join(bin_dir, "team_maker_api.exe")
         
         # Prepare command arguments based on generation type
         command = [cpp_exec_path, file_path, request.generation_type, str(request.num_teams)]
@@ -128,37 +144,23 @@ async def generate_teams(request: TeamGenerationRequest):
             content={"error": f"Failed to generate teams: {str(e)}"}
         )
 
-# Mount the static files
-app.mount("/", StaticFiles(directory="../frontend", html=True), name="frontend")
+# Determine the frontend directory based on the environment
+frontend_dir = os.path.join(os.getcwd(), "frontend")
 
-# Get the absolute path to the frontend directory
-frontend_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend")
+# Check if the directory exists (for local development)
+if not os.path.exists(frontend_dir):
+    # Try to find it relative to the API directory
+    parent_dir = os.path.dirname(os.getcwd())
+    frontend_dir = os.path.join(parent_dir, "frontend")
 
-# Check if directory exists for local development
+# Only mount static files if directory exists
 if os.path.exists(frontend_dir):
-    # Local development - use relative path
     app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
-    
+
     @app.get("/")
     def read_root():
         return FileResponse(os.path.join(frontend_dir, "index.html"))
 else:
-    # Production on Render - frontend should be in the same directory as the app
-    app_dir = os.path.dirname(os.path.abspath(__file__))
-    render_frontend_dir = os.path.join(os.path.dirname(app_dir), "frontend")
-    
-    # If still doesn't exist, try other common locations
-    if not os.path.exists(render_frontend_dir):
-        render_frontend_dir = os.path.join(os.getcwd(), "frontend")
-    
-    if os.path.exists(render_frontend_dir):
-        app.mount("/", StaticFiles(directory=render_frontend_dir, html=True), name="frontend")
-        
-        @app.get("/")
-        def read_root():
-            return FileResponse(os.path.join(render_frontend_dir, "index.html"))
-    else:
-        # Fallback if no frontend directory is found
-        @app.get("/")
-        def read_root():
-            return {"message": "API is running. Frontend directory not found."}
+    @app.get("/")
+    def read_root():
+        return {"message": "API is running. Frontend directory not found."}

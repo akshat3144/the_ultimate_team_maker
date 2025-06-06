@@ -1,28 +1,49 @@
 FROM python:3.9-slim
 
-WORKDIR /app
-
-# Install necessary tools to compile the C++ code
+# Install build tools and C++ compiler
 RUN apt-get update && apt-get install -y \
     build-essential \
     g++ \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy all project files
-COPY . .
+# Set working directory
+WORKDIR /app
 
-# Create bin directory
-RUN mkdir -p bin
+# Copy C++ source code
+COPY cpp/ /app/cpp/
 
-# Compile C++ files
-RUN g++ -o bin/team_maker_headers.exe cpp/src/team_maker_headers.cpp
-RUN g++ -o bin/team_maker_api.exe cpp/src/team_maker_api.cpp cpp/src/Person.cpp cpp/src/Team.cpp cpp/src/TeamGenerator.cpp cpp/src/RandomTeamGenerator.cpp cpp/src/RandomCategoricalTeamGenerator.cpp cpp/src/Utilities.cpp
+# Copy API code
+COPY api/ /app/api/
+
+# Copy frontend files
+COPY frontend/ /app/frontend/
+
+# Create bin directory and compile C++ executables
+RUN mkdir -p /app/bin
+RUN g++ -o /app/bin/team_maker_headers.exe /app/cpp/src/team_maker_headers.cpp
+RUN g++ -o /app/bin/team_maker_api.exe \
+    /app/cpp/src/team_maker_api.cpp \
+    /app/cpp/src/Person.cpp \
+    /app/cpp/src/Team.cpp \
+    /app/cpp/src/TeamGenerator.cpp \
+    /app/cpp/src/RandomTeamGenerator.cpp \
+    /app/cpp/src/RandomCategoricalTeamGenerator.cpp \
+    /app/cpp/src/Utilities.cpp \
+    -I/app/cpp/include
 
 # Install Python dependencies
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Set environment variables
+ENV PYTHONPATH=/app
 ENV PORT=8000
 
-# Command to run the application
-CMD uvicorn api.main:app --host 0.0.0.0 --port ${PORT}
+# Set the working directory to the API folder
+WORKDIR /app/api
+
+# Expose the port
+EXPOSE $PORT
+
+# Start the FastAPI application
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "$PORT"]
