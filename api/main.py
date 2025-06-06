@@ -32,6 +32,8 @@ class TeamGenerationRequest(BaseModel):
     categories: Optional[List[CategoryWeight]] = None
     file_path: str
 
+# Modify the /upload-csv/ endpoint to handle control characters
+
 @app.post("/upload-csv/")
 async def upload_csv(file: UploadFile = File(...)):
     try:
@@ -58,27 +60,40 @@ async def upload_csv(file: UploadFile = File(...)):
         if not os.path.exists(cpp_exec_path):
             raise HTTPException(status_code=500, detail="C++ executable not found. Make sure to build the headers utility.")
         
-        # Run the executable to extract headers
-        result = subprocess.run(
-            [cpp_exec_path, file_path],
-            capture_output=True,
-            text=True
-        )
-        
-        if result.returncode != 0:
+        # Run the executable to extract headers with better error handling
+        try:
+            result = subprocess.run(
+                [cpp_exec_path, file_path],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            
+            # Clean the output to remove any control characters that might cause JSON parsing issues
+            cleaned_output = ''.join(c for c in result.stdout if c >= ' ' or c in ['\n', '\r', '\t'])
+            
+            # Parse the output (headers)
+            headers = json.loads(cleaned_output)
+            
+            return {
+                "message": "CSV uploaded successfully",
+                "headers": headers,
+                "file_path": file_path
+            }
+        except subprocess.CalledProcessError as e:
             return JSONResponse(
                 status_code=400,
-                content={"error": f"Error processing CSV: {result.stderr}"}
+                content={"error": f"Error processing CSV: {e.stderr}"}
             )
-        
-        # Parse the output (headers)
-        headers = json.loads(result.stdout)
-        
-        return {
-            "message": "CSV uploaded successfully",
-            "headers": headers,
-            "file_path": file_path
-        }
+        except json.JSONDecodeError as e:
+            # If JSON parsing fails, try to return the raw output for debugging
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "error": f"Failed to parse headers: {str(e)}", 
+                    "raw_output": cleaned_output[:200]  # Include part of the raw output for debugging
+                }
+            )
     except Exception as e:
         return JSONResponse(
             status_code=500,

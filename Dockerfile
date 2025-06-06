@@ -18,9 +18,12 @@ COPY api/ /app/api/
 # Copy frontend files
 COPY frontend/ /app/frontend/
 
-# Create bin directory and compile C++ executables
+# Create bin directory
 RUN mkdir -p /app/bin
+
+# Compile C++ executables with explicit include path
 RUN g++ -o /app/bin/team_maker_headers.exe /app/cpp/src/team_maker_headers.cpp
+
 RUN g++ -o /app/bin/team_maker_api.exe \
     /app/cpp/src/team_maker_api.cpp \
     /app/cpp/src/Person.cpp \
@@ -39,11 +42,15 @@ RUN pip install --no-cache-dir -r requirements.txt
 ENV PYTHONPATH=/app
 ENV PORT=8000
 
+# Make sure the executables have correct permissions
+RUN chmod +x /app/bin/team_maker_headers.exe
+RUN chmod +x /app/bin/team_maker_api.exe
+
 # Set the working directory to the API folder
-WORKDIR /app/api
+WORKDIR /app
 
 # Expose the port
 EXPOSE $PORT
 
 # Start the FastAPI application
-CMD uvicorn main:app --host 0.0.0.0 --port ${PORT}
+CMD cd /app/api && uvicorn main:app --host 0.0.0.0 --port ${PORT}

@@ -170,7 +170,16 @@ document.addEventListener("DOMContentLoaded", () => {
         body: formData,
       });
 
-      const data = await response.json();
+      // First try to parse the response as JSON
+      let data;
+      const text = await response.text();
+      try {
+        data = JSON.parse(text);
+      } catch (parseError) {
+        console.error("Failed to parse response:", parseError);
+        console.log("Raw response:", text);
+        throw new Error("Server returned invalid JSON");
+      }
 
       if (response.ok) {
         uploadStatus.innerHTML =
@@ -194,12 +203,17 @@ document.addEventListener("DOMContentLoaded", () => {
         }`;
         uploadStatus.className = "status-indicator status-error";
         showToast(data.error || "Failed to upload file.", "error");
+
+        // Log additional error details if available
+        if (data.raw_output) {
+          console.error("Raw output from server:", data.raw_output);
+        }
       }
     } catch (error) {
       uploadStatus.innerHTML =
         '<i class="fas fa-exclamation-circle me-2"></i> Upload error';
       uploadStatus.className = "status-indicator status-error";
-      showToast("An error occurred during upload.", "error");
+      showToast("An error occurred during upload. Please try again.", "error");
       console.error("Error:", error);
     }
   }
