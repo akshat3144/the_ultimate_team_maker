@@ -11,8 +11,12 @@ RUN apt-get update && apt-get install -y \
 # Copy all project files
 COPY . .
 
-# Create bin directory
+# Create bin directory and frontend directory if they don't exist
 RUN mkdir -p bin
+RUN mkdir -p frontend
+
+# Copy frontend files directly to /app/frontend (not relative path)
+COPY frontend/ /app/frontend/
 
 # Compile C++ files
 RUN g++ -o bin/team_maker_headers.exe cpp/src/team_maker_headers.cpp
