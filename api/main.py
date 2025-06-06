@@ -129,7 +129,7 @@ async def generate_teams(request: TeamGenerationRequest):
         )
 
 # Mount the static files
-app.mount("/", StaticFiles(directory="./frontend", html=True), name="frontend")
+app.mount("/", StaticFiles(directory="../frontend", html=True), name="frontend")
 
 # Route for the main page
 @app.get("/")
