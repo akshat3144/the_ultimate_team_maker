@@ -24,5 +24,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Set environment variables
 ENV PORT=8000
 
-# Command to run the application
-CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "${PORT}"]
+# Use shell form of CMD so environment variables are properly expanded
+CMD uvicorn api.main:app --host 0.0.0.0 --port ${PORT}
