@@ -36,8 +36,7 @@ void outputTeamsAsJson(const vector<Team> &teams)
 
 int main(int argc, char *argv[])
 {
-    // Set locale to "C" for consistent number formatting
-    std::locale::global(std::locale("C"));
+    std::locale::global(std::locale("C")); // Force standard locale
 
     if (argc < 4)
     {

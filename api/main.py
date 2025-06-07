@@ -191,9 +191,8 @@ async def generate_teams(request: TeamGenerationRequest):
             return JSONResponse(
                 status_code=400,
                 content={
-                    "error": f"Error generating teams: {result.stderr}",
-                    "command": ' '.join(command),
-                    "details": "This might be a number format issue with decimal points."
+                    "error": result.stderr,
+                    "message": "This might be due to a format or locale issue."
                 }
             )
         
