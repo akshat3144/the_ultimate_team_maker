@@ -31,6 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let selectedCategories = [];
   let generatedTeams = [];
   let dragCounter = 0;
+  let selectedMethod = "random"; // Add this line to define the variable globally with default value
 
   // Event Listeners
   fileInput.addEventListener("change", handleFileSelect);
@@ -40,7 +41,10 @@ document.addEventListener("DOMContentLoaded", () => {
   newGenerationBtn.addEventListener("click", showTeamGeneration);
 
   genMethodRadios.forEach((radio) => {
-    radio.addEventListener("change", toggleCategoriesSection);
+    radio.addEventListener("change", (e) => {
+      selectedMethod = e.target.value; // Update the global variable when method changes
+      toggleCategoriesSection();
+    });
   });
 
   // Initialize tooltips
@@ -368,10 +372,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Toggle categories section based on generation method
   function toggleCategoriesSection() {
-    const selectedMethod = document.querySelector(
-      'input[name="gen-method"]:checked'
-    ).value;
-
+    // Update the following line to use the global variable
     if (selectedMethod === "random") {
       categoriesSection.style.display = "none";
       // Enable generate button for random method
@@ -393,11 +394,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Generate teams
+  // Generate teams - modify to use global selectedMethod
   async function generateTeams() {
-    const selectedMethod = document.querySelector(
-      'input[name="gen-method"]:checked'
-    ).value;
+    // Remove this line as we're now using the global variable
+    // const selectedMethod = document.querySelector('input[name="gen-method"]:checked').value;
     const numTeams = parseInt(numTeamsInput.value);
 
     if (numTeams < 2) {
@@ -595,20 +595,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Add new DOM elements for search functionality
   const searchCategoryBtn = document.getElementById("search-category-btn");
-  const searchCategoryModal = new bootstrap.Modal(document.getElementById('searchCategoryModal'));
+  const searchCategoryModal = new bootstrap.Modal(
+    document.getElementById("searchCategoryModal")
+  );
   const categorySelectDropdown = document.getElementById("category-select");
-  const searchResultsContainer = document.getElementById("search-results-container");
-  const downloadSearchResultsBtn = document.getElementById("download-search-results-btn");
+  const searchResultsContainer = document.getElementById(
+    "search-results-container"
+  );
+  const downloadSearchResultsBtn = document.getElementById(
+    "download-search-results-btn"
+  );
 
   // Add new event listeners
   if (searchCategoryBtn) {
     searchCategoryBtn.addEventListener("click", openSearchModal);
   }
-  
+
   if (document.getElementById("perform-search-btn")) {
-    document.getElementById("perform-search-btn").addEventListener("click", searchTeamsByCategory);
+    document
+      .getElementById("perform-search-btn")
+      .addEventListener("click", searchTeamsByCategory);
   }
-  
+
   if (downloadSearchResultsBtn) {
     downloadSearchResultsBtn.addEventListener("click", downloadSearchResults);
   }
@@ -621,17 +629,20 @@ document.addEventListener("DOMContentLoaded", () => {
     // Only show categories that were used in team generation
     if (selectedMethod !== "random" && selectedCategories.length > 0) {
       categorySelectDropdown.innerHTML = "";
-      
-      selectedCategories.forEach(category => {
+
+      selectedCategories.forEach((category) => {
         const option = document.createElement("option");
         option.value = category.index;
         option.textContent = category.name;
         categorySelectDropdown.appendChild(option);
       });
-      
+
       searchCategoryModal.show();
     } else if (selectedMethod === "random") {
-      showToast("Search by category is not available for random teams.", "error");
+      showToast(
+        "Search by category is not available for random teams.",
+        "error"
+      );
     } else {
       showToast("Please select at least one category first.", "error");
     }
@@ -640,29 +651,30 @@ document.addEventListener("DOMContentLoaded", () => {
   // Search teams by category
   async function searchTeamsByCategory() {
     const categoryIndex = parseInt(categorySelectDropdown.value);
-    
+
     if (isNaN(categoryIndex)) {
       showToast("Please select a category to search by.", "error");
       return;
     }
-    
+
     // Show loading state
     const searchBtn = document.getElementById("perform-search-btn");
     searchBtn.disabled = true;
-    searchBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Searching...';
-    
+    searchBtn.innerHTML =
+      '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Searching...';
+
     const request = {
       file_path: uploadedFilePath,
       generation_type: selectedMethod,
       num_teams: parseInt(numTeamsInput.value),
       category_index: categoryIndex,
-      categories: selectedCategories.map(cat => ({
+      categories: selectedCategories.map((cat) => ({
         index: cat.index,
         weight: cat.weight,
-        name: cat.name
-      }))
+        name: cat.name,
+      })),
     };
-    
+
     try {
       const response = await fetch("/search-teams-by-category/", {
         method: "POST",
@@ -671,16 +683,16 @@ document.addEventListener("DOMContentLoaded", () => {
         },
         body: JSON.stringify(request),
       });
-      
+
       const data = await response.json();
-      
+
       if (response.ok) {
         searchResults = data;
         displaySearchResults();
-        
+
         // Enable download button
         downloadSearchResultsBtn.disabled = false;
-        
+
         showToast("Teams searched successfully!", "success");
       } else {
         showToast(data.error || "Failed to search teams by category.", "error");
@@ -698,10 +710,11 @@ document.addEventListener("DOMContentLoaded", () => {
   // Display search results
   function displaySearchResults() {
     if (!searchResults || !searchResults.results) {
-      searchResultsContainer.innerHTML = '<div class="alert alert-info">No results found.</div>';
+      searchResultsContainer.innerHTML =
+        '<div class="alert alert-info">No results found.</div>';
       return;
     }
-    
+
     searchResultsContainer.innerHTML = `
       <h5 class="mb-3">Teams Ranked by ${searchResults.category_name}</h5>
       <div class="table-responsive">
@@ -715,7 +728,9 @@ document.addEventListener("DOMContentLoaded", () => {
             </tr>
           </thead>
           <tbody>
-            ${searchResults.results.map(result => `
+            ${searchResults.results
+              .map(
+                (result) => `
               <tr>
                 <td class="text-center">
                   ${getRankBadge(result.rank)}
@@ -724,29 +739,37 @@ document.addEventListener("DOMContentLoaded", () => {
                 <td>${result.score.toFixed(2)}</td>
                 <td>
                   <ul class="list-group">
-                    ${result.members.map(member => `
+                    ${result.members
+                      .map(
+                        (member) => `
                       <li class="list-group-item d-flex justify-content-between align-items-center">
                         ${member.name}
-                        <span class="badge bg-primary rounded-pill">${member.individual_score.toFixed(1)}</span>
+                        <span class="badge bg-primary rounded-pill">${member.individual_score.toFixed(
+                          1
+                        )}</span>
                       </li>
-                    `).join('')}
+                    `
+                      )
+                      .join("")}
                   </ul>
                 </td>
               </tr>
-            `).join('')}
+            `
+              )
+              .join("")}
           </tbody>
         </table>
       </div>
     `;
   }
-  
+
   // Helper function to get rank badge with appropriate color
   function getRankBadge(rank) {
     let badgeClass = "bg-secondary";
     if (rank === 1) badgeClass = "bg-warning text-dark"; // Gold
     else if (rank === 2) badgeClass = "bg-light text-dark border"; // Silver
     else if (rank === 3) badgeClass = "bg-danger"; // Bronze
-    
+
     return `<span class="badge ${badgeClass}">${rank}</span>`;
   }
 
@@ -756,26 +779,32 @@ document.addEventListener("DOMContentLoaded", () => {
       showToast("No search results to download.", "error");
       return;
     }
-    
+
     let csvContent = `Rank,Team,Total ${searchResults.category_name} Score,Member Name,Individual Score\n`;
-    
-    searchResults.results.forEach(result => {
-      result.members.forEach(member => {
-        csvContent += `${result.rank},Team ${result.team_number},${result.score.toFixed(2)},${member.name},${member.individual_score.toFixed(1)}\n`;
+
+    searchResults.results.forEach((result) => {
+      result.members.forEach((member) => {
+        csvContent += `${result.rank},Team ${
+          result.team_number
+        },${result.score.toFixed(2)},${
+          member.name
+        },${member.individual_score.toFixed(1)}\n`;
       });
     });
-    
+
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
     link.setAttribute(
       "download",
-      `team-search-by-${searchResults.category_name.toLowerCase()}-${new Date().toISOString().slice(0, 10)}.csv`
+      `team-search-by-${searchResults.category_name.toLowerCase()}-${new Date()
+        .toISOString()
+        .slice(0, 10)}.csv`
     );
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     showToast("Search results downloaded successfully!", "success");
   }
 
