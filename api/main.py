@@ -175,7 +175,7 @@ async def generate_teams(request: TeamGenerationRequest):
             command.append(",".join(category_indices))
             command.append(",".join(weights))
         
-        # Run the executable
+        # Run the executable with better error capturing
         result = subprocess.run(
             command,
             capture_output=True,
@@ -183,9 +183,18 @@ async def generate_teams(request: TeamGenerationRequest):
         )
         
         if result.returncode != 0:
+            # Log more detailed error information
+            print(f"Command that failed: {' '.join(command)}")
+            print(f"Error output: {result.stderr}")
+            print(f"Standard output: {result.stdout}")
+            
             return JSONResponse(
                 status_code=400,
-                content={"error": f"Error generating teams: {result.stderr}"}
+                content={
+                    "error": f"Error generating teams: {result.stderr}",
+                    "command": ' '.join(command),
+                    "details": "This might be a number format issue with decimal points."
+                }
             )
         
         # Parse the output (teams)
