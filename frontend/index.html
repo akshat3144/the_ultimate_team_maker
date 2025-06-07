@@ -16,8 +16,8 @@
 <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light fixed-top">
-        <div class="container">
-            <a class="navbar-brand" href="#"><i class="fas fa-users text-primary me-2"></i>Team Maker</a>
+        <div class="container-md">
+            <a class="navbar-brand" href="#"><i class="fas fa-users text-primary me-2"></i>Ultimate Team Maker</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -33,7 +33,7 @@
                         <a class="nav-link" href="#cli-version">CLI Version</a>
                     </li>
                 </ul>
-                <a href="team_maker_presentation.pdf" download class="btn btn-primary">
+                <a href="team_maker_presentation.pdf" download class="btn btn-primary" style="margin: 0 2rem;">
                     <i class="fas fa-download me-2"></i>Learn How It Works
                 </a>
             </div>
@@ -42,22 +42,22 @@
 
     <!-- Hero Section -->
     <section id="home" class="hero-section">
-        <div class="container">
+        <div class="container-md">
             <div class="row align-items-center">
                 <div class="col-md-6">
                     <h1 class="display-4 fw-bold mb-4">Create Balanced Teams Quickly & Efficiently</h1>
                     <p class="lead mb-4">Team Maker helps you distribute people into balanced teams based on skills, attributes, or any criteria you choose.</p>
-                    <div class="d-flex gap-3">
+                    <!-- <div class="d-flex gap-3"> -->
                         <a href="#gui-version" class="btn btn-primary btn-lg">
                             <i class="fas fa-desktop me-2"></i>Try GUI Version
                         </a>
                         <a href="#cli-version" class="btn btn-outline-primary btn-lg">
                             <i class="fas fa-terminal me-2"></i>Download CLI Version
                         </a>
-                    </div>
+                    <!-- </div> -->
                 </div>
                 <div class="col-md-6 text-center">
-                    <img src="team-maker-hero.svg" alt="Team Maker Illustration" class="img-fluid hero-image">
+                    <img src="image.png" alt="Team Maker Illustration" class="img-fluid hero-image">
                 </div>
             </div>
         </div>
@@ -65,12 +65,12 @@
 
     <!-- GUI Version Section (Most of the existing content) -->
     <section id="gui-version" class="section-padding bg-light">
-        <div class="container">
-            <div class="section-header text-center mb-5">
+        <div class="container-lg">
+            <div class="section-header text-center mb-5 container">
                 <h2 class="display-6 fw-bold">GUI Version</h2>
                 <p class="text-muted">User-friendly interface for quick team building</p>
                 <div class="warning-cli mt-3">
-                    <p class="small text-primary"><i class="fas fa-info-circle me-2"></i>For more detailed results and advanced features, try our <a href="#cli-version">CLI version</a>.</p>
+                    <p class="medium text-primary"><i class="fas fa-info-circle me-2"></i>For more detailed results and advanced features, try our <a href="#cli-version">CLI version</a>.</p>
                 </div>
             </div>
 
@@ -336,8 +336,8 @@
 
     <!-- CLI Version Section (Improved) -->
     <section id="cli-version" class="section-padding">
-        <div class="container">
-            <div class="section-header text-center mb-5">
+        <div class="container-md">
+            <div class="container section-header text-center mb-5">
                 <h2 class="display-6 fw-bold">CLI Version</h2>
                 <p class="text-muted">Advanced command-line interface for power users</p>
             </div>
@@ -352,13 +352,13 @@
                             <!-- Step 1 -->
                             <div class="accordion-item">
                                 <h2 class="accordion-header">
-                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStep1" aria-expanded="true" aria-controls="collapseStep1">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseStep1" aria-expanded="false" aria-controls="collapseStep1">
                                         <span class="badge bg-primary me-3">1</span> Download the CLI Tool
                                     </button>
                                 </h2>
                                 <div id="collapseStep1" class="accordion-collapse collapse show" data-bs-parent="#cliAccordion">
                                     <div class="accordion-body">
-                                        <p>Get the Team Maker CLI executable for your platform.
+                                        <p>Get the Team Maker C++ File.
                                     </div>
                                 </div>
                             </div>
@@ -426,11 +426,6 @@
                             
                         </div>
 
-                        <div class="mt-4">
-                            <a href="team_maker_cli_docs.pdf" class="btn btn-outline-primary" download>
-                                <i class="fas fa-file-pdf me-2"></i>Full Command Reference
-                            </a>
-                        </div>
                     </div>
                 </div>
                 
@@ -471,13 +466,13 @@
 
     <!-- Footer -->
     <footer class="footer">
-        <div class="container">
+        <div class="container-md">
             <!-- Main footer content -->
             <div class="row">
                 <!-- Left column - About -->
-                <div class="col-lg-5 mb-4 mb-lg-0">
+                <div class="col-lg-4 mb-4 mb-lg-0">
                     <div class="footer-brand mb-3">
-                        <i class="fas fa-users me-2"></i>Team Maker
+                        <i class="fas fa-users me-2"></i>Ultimate Team Maker
                     </div>
                     <p class="footer-description">A powerful tool for creating balanced teams based on multiple criteria. Perfect for educators, coaches, managers and event organizers.</p>
                     <div class="footer-cta mt-4">
@@ -491,7 +486,7 @@
                 </div>
                 
                 <!-- Middle column - Quick links -->
-                <div class="col-md-4 col-lg-3 mb-4 mb-md-0">
+                <div class="col-lg-3 offset-1 mb-4 mb-lg-0">
                     <h6 class="footer-heading">Quick Links</h6>
                     <ul class="footer-nav">
                         <li><a href="#home"><i class="fas fa-home me-2"></i>Home</a></li>
@@ -501,35 +496,29 @@
                     </ul>
                 </div>
                 
-                <!-- Right column - Connect -->
-                <div class="col-md-8 col-lg-4">
-                    <div class="row">
-                        <!-- Contact -->
-                        <div class="col-sm-6 mb-4">
-                            <h6 class="footer-heading">Contact</h6>
-                            <ul class="footer-contact">
-                                <li>
-                                    <i class="fas fa-envelope"></i>
-                                    <a href="mailto:support@teammaker.com">akshat3144@gmail.com</a>
-                                </li>
-                            </ul>
-                            <a href="https://github.com/yourusername/team-maker" class="github-btn" target="_blank">
-                                <i class="fab fa-github me-2"></i>GitHub Repo
-                            </a>
-                        </div>
-                    
-                    </div>
+                <!-- Right column - Contact -->
+                <div class="col-lg-3">
+                    <h6 class="footer-heading">Contact</h6>
+                    <ul class="footer-contact">
+                        <li>
+                            <i class="fas fa-envelope"></i>
+                            <a href="mailto:akshat3144@gmail.com">akshat3144@gmail.com</a>
+                        </li>
+                    </ul>
+                    <a href="https://github.com/akshat3144/The_Ultimate_Team_Maker" class="github-btn mt-3" target="_blank">
+                        <i class="fab fa-github me-2"></i>GitHub Repository
+                    </a>
                 </div>
             </div>
             
             <!-- Footer bottom / copyright -->
-<div class="footer-bottom">
-    <div class="row">
-        <div class="col-12 text-center">
-            <p class="copyright">Made by <a href="https://github.com/akshatgupta-1" target="_blank" class="text-white fw-bold">Akshat Gupta</a></p>
-        </div>
-    </div>
-</div>
+            <div class="footer-bottom">
+                <div class="row">
+                    <div class="col-12 text-center">
+                        <p class="copyright">Made by <a href="https://www.linkedin.com/in/akshat3144/" target="_blank" class="text-white fw-bold">Akshat Gupta</a></p>
+                    </div>
+                </div>
+            </div>
         </div>
     </footer>
 
