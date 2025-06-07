@@ -339,3 +339,42 @@ body {
         height: 150px;
     }
 }
+
+/* Introduction Section Styles */
+.feature-icon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: rgba(67, 97, 238, 0.1);
+    color: var(--primary-color);
+}
+
+.accordion-button:focus {
+    border-color: rgba(67, 97, 238, 0.5);
+    box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+}
+
+.card-header h5 {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.table-responsive {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* Ensure consistent height for cards */
+.card.h-100 {
+    transition: var(--transition);
+}
+
+.card.h-100:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow);
+}
