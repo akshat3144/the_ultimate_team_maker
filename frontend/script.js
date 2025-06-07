@@ -427,10 +427,9 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     if (selectedMethod !== "random") {
-      // When sending the request, ensure weights are properly formatted
       request.categories = selectedCategories.map((cat) => ({
         index: cat.index,
-        weight: parseFloat(cat.weight.toFixed(2)), // Ensure consistent formatting
+        weight: cat.weight,
         name: cat.name,
       }));
     }
