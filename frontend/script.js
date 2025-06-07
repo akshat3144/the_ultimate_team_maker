@@ -427,14 +427,33 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     if (selectedMethod !== "random") {
+      // Format weights explicitly to ensure proper decimal formatting
       request.categories = selectedCategories.map((cat) => ({
         index: cat.index,
-        weight: cat.weight,
+        weight: parseFloat(cat.weight.toFixed(6)), // Ensure numeric with 6 decimal places
         name: cat.name,
       }));
+
+      // Validate that weights are proper numbers
+      const hasInvalidWeights = request.categories.some(
+        (cat) => isNaN(cat.weight) || cat.weight < 0 || cat.weight > 1
+      );
+
+      if (hasInvalidWeights) {
+        showToast(
+          "Invalid category weights. Values must be between 0 and 1.",
+          "error"
+        );
+        generateBtn.disabled = false;
+        generateBtn.innerHTML =
+          '<i class="fas fa-users me-2"></i>Generate Teams';
+        return;
+      }
     }
 
     try {
+      console.log("Sending request:", JSON.stringify(request));
+
       const response = await fetch("/generate-teams/", {
         method: "POST",
         headers: {
@@ -443,22 +462,35 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify(request),
       });
 
-      const data = await response.json();
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorMessage = "Failed to generate teams.";
 
-      if (response.ok) {
-        generatedTeams = data.teams;
-        displayTeams();
-        teamGenSection.style.display = "none";
-        resultsSection.style.display = "block";
-        resultsSection.classList.add("fadeIn");
+        try {
+          // Try to parse error as JSON
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.error || errorMessage;
+          console.error("Error response:", errorData);
+        } catch {
+          // If not JSON, just log the raw error
+          console.error("Raw error response:", errorText);
+        }
 
-        // Scroll to results
-        resultsSection.scrollIntoView({ behavior: "smooth" });
-
-        showToast(`${numTeams} teams successfully generated!`, "success");
-      } else {
-        showToast(data.error || "Failed to generate teams.", "error");
+        showToast(errorMessage, "error");
+        return;
       }
+
+      const data = await response.json();
+      generatedTeams = data.teams;
+      displayTeams();
+      teamGenSection.style.display = "none";
+      resultsSection.style.display = "block";
+      resultsSection.classList.add("fadeIn");
+
+      // Scroll to results
+      resultsSection.scrollIntoView({ behavior: "smooth" });
+
+      showToast(`${numTeams} teams successfully generated!`, "success");
     } catch (error) {
       showToast("An error occurred while generating teams.", "error");
       console.error("Error:", error);
