@@ -59,15 +59,44 @@ void TeamGenerator::readPersonsFromFile(const string &filename, const vector<int
         {
             string scoreStr;
             getline(ss, scoreStr, ',');
-            double score = stod(scoreStr);
-            scores[i] = score;
+
+            try
+            {
+                // Remove any whitespace
+                scoreStr.erase(0, scoreStr.find_first_not_of(" \t\n\r"));
+                scoreStr.erase(scoreStr.find_last_not_of(" \t\n\r") + 1);
+
+                // Check for empty string
+                if (scoreStr.empty())
+                {
+                    cerr << "Error: Empty score value found" << endl;
+                    exit(1);
+                }
+
+                // Replace comma with period (for locales that use comma as decimal separator)
+                size_t pos = 0;
+                while ((pos = scoreStr.find(",", pos)) != string::npos)
+                {
+                    scoreStr.replace(pos, 1, ".");
+                    pos++;
+                }
+
+                // Convert to double with error checking
+                double score = stod(scoreStr);
+                scores[i] = score;
+            }
+            catch (const exception &e)
+            {
+                cerr << "Error converting score '" << scoreStr << "' to double: " << e.what() << endl;
+                exit(1);
+            }
 
             // Check if the current category is selected
             auto categoryIndex = find(categoryIndices.begin(), categoryIndices.end(), i);
             if (categoryIndex != categoryIndices.end())
             {
                 int weightIndex = categoryIndex - categoryIndices.begin();
-                weightedScore += score * weights[weightIndex];
+                weightedScore += scores[i] * weights[weightIndex];
             }
         }
 

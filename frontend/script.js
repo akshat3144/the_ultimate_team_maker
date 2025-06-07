@@ -427,7 +427,26 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     if (selectedMethod !== "random") {
-      // Format weights explicitly to ensure proper decimal formatting
+      // Validate weights before sending to backend
+      // Ensure all weights are valid numbers
+      const weightSum = request.categories.reduce(
+        (sum, cat) => sum + cat.weight,
+        0
+      );
+
+      if (Math.abs(weightSum - 1.0) > 0.001) {
+        showToast("Category weights must sum to exactly 1.0", "error");
+        generateBtn.disabled = false;
+        generateBtn.innerHTML =
+          '<i class="fas fa-users me-2"></i>Generate Teams';
+        return;
+      }
+
+      // Ensure all weights are formatted as proper numbers
+      request.categories.forEach((cat) => {
+        cat.weight = Number(cat.weight.toFixed(6));
+      });
+
       request.categories = selectedCategories.map((cat) => ({
         index: cat.index,
         weight: parseFloat(cat.weight.toFixed(6)), // Ensure numeric with 6 decimal places

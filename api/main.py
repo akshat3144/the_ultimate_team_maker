@@ -9,8 +9,14 @@ import shutil
 import json
 from typing import List, Optional
 from pydantic import BaseModel
+import logging
 
 app = FastAPI(title="Team Maker API")
+
+# Set up logging
+logging.basicConfig(level=logging.DEBUG, 
+                   format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger("team_maker")
 
 # Set consistent locale for number formatting
 os.environ["LC_ALL"] = "C"
@@ -75,8 +81,8 @@ async def upload_csv(file: UploadFile = File(...)):
         cpp_exec_path = os.path.join(bin_dir, "team_maker_headers.exe")
         
         # Log the path to help with debugging
-        print(f"Using executable at: {cpp_exec_path}")
-        print(f"File path: {file_path}")
+        logger.debug(f"Using executable at: {cpp_exec_path}")
+        logger.debug(f"File path: {file_path}")
         
         # Make sure the executable exists
         if not os.path.exists(cpp_exec_path):
@@ -164,9 +170,9 @@ async def generate_teams(request: TeamGenerationRequest):
         cpp_exec_path = os.path.join(bin_dir, "team_maker_api.exe")
         
         # Log key information for debugging
-        print(f"Running team generation with executable: {cpp_exec_path}")
-        print(f"Generation type: {request.generation_type}")
-        print(f"Number of teams: {request.num_teams}")
+        logger.debug(f"Running team generation with executable: {cpp_exec_path}")
+        logger.debug(f"Generation type: {request.generation_type}")
+        logger.debug(f"Number of teams: {request.num_teams}")
         
         # Prepare command arguments based on generation type
         command = [cpp_exec_path, file_path, request.generation_type, str(request.num_teams)]
@@ -177,20 +183,34 @@ async def generate_teams(request: TeamGenerationRequest):
             
             # Add category indices and weights with explicit formatting
             category_indices = [str(cat.index) for cat in request.categories]
-            # Format weights with period as decimal separator, ensuring C locale compatibility
-            weights = [f"{cat.weight:.6f}" for cat in request.categories] 
+            
+            # Enhanced weight formatting to ensure C locale compatibility
+            weights = []
+            for cat in request.categories:
+                try:
+                    # Ensure the weight is a valid float
+                    float_weight = float(cat.weight)
+                    if not (0 <= float_weight <= 1):
+                        raise HTTPException(status_code=400, 
+                            detail=f"Weight must be between 0 and 1, got: {float_weight}")
+                    
+                    # Format with period as decimal separator and fixed precision
+                    weights.append(f"{float_weight:.6f}")
+                except ValueError as e:
+                    raise HTTPException(status_code=400, 
+                        detail=f"Invalid weight value: {cat.weight}. Error: {str(e)}")
             
             # Add to command
             command.append(",".join(category_indices))
             command.append(",".join(weights))
             
             # Log for debugging
-            print(f"Category indices: {','.join(category_indices)}")
-            print(f"Category weights: {','.join(weights)}")
+            logger.debug(f"Category indices: {','.join(category_indices)}")
+            logger.debug(f"Category weights: {','.join(weights)}")
         
         # Make the command string explicit to avoid any shell parsing issues
         command_str = " ".join([str(c) for c in command])
-        print(f"Full command: {command_str}")
+        logger.debug(f"Full command: {command_str}")
         
         # Run the executable with robust error handling
         try:
@@ -205,7 +225,7 @@ async def generate_teams(request: TeamGenerationRequest):
             # Check for errors
             if result.returncode != 0:
                 error_msg = result.stderr if result.stderr else "Unknown error in team generation"
-                print(f"Team generation failed with code {result.returncode}: {error_msg}")
+                logger.debug(f"Team generation failed with code {result.returncode}: {error_msg}")
                 return JSONResponse(
                     status_code=400,
                     content={"error": f"Error generating teams: {error_msg}"}
@@ -229,21 +249,21 @@ async def generate_teams(request: TeamGenerationRequest):
                     "teams": teams
                 }
             except json.JSONDecodeError as e:
-                print(f"JSON decode error: {str(e)}")
-                print(f"Raw output (first 200 chars): {cleaned_output[:200]}")
+                logger.debug(f"JSON decode error: {str(e)}")
+                logger.debug(f"Raw output (first 200 chars): {cleaned_output[:200]}")
                 return JSONResponse(
                     status_code=500,
                     content={"error": f"Failed to parse team data: {str(e)}"}
                 )
                 
         except Exception as e:
-            print(f"Exception running team generator: {str(e)}")
+            logger.debug(f"Exception running team generator: {str(e)}")
             return JSONResponse(
                 status_code=500,
                 content={"error": f"Failed to run team generator: {str(e)}"}
             )
     except Exception as e:
-        print(f"General exception in generate_teams: {str(e)}")
+        logger.debug(f"General exception in generate_teams: {str(e)}")
         return JSONResponse(
             status_code=500,
             content={"error": f"Failed to generate teams: {str(e)}"}
