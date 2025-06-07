@@ -12,6 +12,9 @@ from pydantic import BaseModel
 
 app = FastAPI(title="Team Maker API")
 
+# Set consistent locale for number formatting
+os.environ["LC_ALL"] = "C"
+
 # Enable CORS
 app.add_middleware(
     CORSMiddleware,
