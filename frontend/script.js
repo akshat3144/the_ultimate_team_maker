@@ -469,7 +469,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Display generated teams - modified to show approximate team size
+  // Display generated teams - modified to show a range of members per team
   function displayTeams() {
     teamsContainer.innerHTML = "";
 
@@ -482,9 +482,15 @@ document.addEventListener("DOMContentLoaded", () => {
     teamCountElement.textContent = generatedTeams.length;
     memberCountElement.textContent = totalMembers;
 
-    // Calculate approximate members per team (using Math.floor)
-    const approxPerTeam = Math.floor(totalMembers / generatedTeams.length);
-    membersPerTeamElement.textContent = approxPerTeam;
+    // Calculate floor and ceiling values for members per team
+    const floorPerTeam = Math.floor(totalMembers / generatedTeams.length);
+    const ceilPerTeam = Math.ceil(totalMembers / generatedTeams.length);
+
+    // Display as a range if floor and ceiling are different
+    membersPerTeamElement.textContent =
+      floorPerTeam === ceilPerTeam
+        ? floorPerTeam
+        : `${floorPerTeam} - ${ceilPerTeam}`;
 
     // Display each team with animation
     generatedTeams.forEach((team, index) => {
