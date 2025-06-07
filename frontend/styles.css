@@ -378,3 +378,53 @@ body {
     transform: translateY(-5px);
     box-shadow: var(--shadow);
 }
+
+/* Search Results Styling */
+.search-results-container {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+.search-results-table th {
+    position: sticky;
+    top: 0;
+    background-color: var(--primary-color);
+    color: white;
+    z-index: 10;
+}
+
+.search-results-container .list-group {
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 0;
+}
+
+.search-results-container .list-group-item {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+}
+
+/* Rank badge styling */
+.rank-badge {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-weight: bold;
+}
+
+.rank-1 {
+    background-color: #ffd700; /* Gold */
+    color: #212529;
+}
+
+.rank-2 {
+    background-color: #c0c0c0; /* Silver */
+    color: #212529;
+}
+
+.rank-3 {
+    background-color: #cd7f32; /* Bronze */
+    color: white;
+}

@@ -32,8 +32,13 @@ class TeamGenerationRequest(BaseModel):
     categories: Optional[List[CategoryWeight]] = None
     file_path: str
 
-# Modify the /upload-csv/ endpoint to handle control characters
-
+class SearchByCategoryRequest(BaseModel):
+    file_path: str
+    generation_type: str
+    num_teams: int
+    category_index: int
+    categories: List[CategoryWeight]
+    
 @app.post("/upload-csv/")
 async def upload_csv(file: UploadFile = File(...)):
     try:
@@ -160,8 +165,8 @@ async def generate_teams(request: TeamGenerationRequest):
         # Set up the command to run the team generator executable
         cpp_exec_path = os.path.join(bin_dir, "team_maker_api.exe")
         
-        # Prepare command arguments based on generation type
-        command = [cpp_exec_path, file_path, request.generation_type, str(request.num_teams)]
+        # Prepare command arguments
+        command = [cpp_exec_path, file_path, "generate", request.generation_type, str(request.num_teams)]
         
         if request.generation_type in ["categorical", "random_categorical"]:
             if not request.categories or len(request.categories) == 0:
@@ -198,6 +203,71 @@ async def generate_teams(request: TeamGenerationRequest):
         return JSONResponse(
             status_code=500,
             content={"error": f"Failed to generate teams: {str(e)}"}
+        )
+
+@app.post("/search-teams-by-category/")
+async def search_teams_by_category(request: SearchByCategoryRequest):
+    try:
+        file_path = request.file_path
+        # Check if file exists
+        if not os.path.exists(file_path):
+            raise HTTPException(status_code=400, detail="File not found. Please upload the CSV file again.")
+        
+        # Determine the base directory
+        base_dir = os.getcwd()
+        bin_dir = os.path.join(base_dir, "bin")
+        
+        # Handle case where we're in the API directory locally
+        if os.path.basename(base_dir) == "api":
+            bin_dir = os.path.join(os.path.dirname(base_dir), "bin")
+        
+        # Set up the command
+        cpp_exec_path = os.path.join(bin_dir, "team_maker_api.exe")
+        
+        # Prepare command arguments
+        command = [
+            cpp_exec_path, 
+            file_path, 
+            "search", 
+            request.generation_type, 
+            str(request.num_teams),
+            str(request.category_index)
+        ]
+        
+        # Add category indices and weights
+        category_indices = [str(cat.index) for cat in request.categories]
+        weights = [str(cat.weight) for cat in request.categories]
+        
+        # Add to command
+        command.append(",".join(category_indices))
+        command.append(",".join(weights))
+        
+        # Run the executable
+        result = subprocess.run(
+            command,
+            capture_output=True,
+            text=True
+        )
+        
+        if result.returncode != 0:
+            return JSONResponse(
+                status_code=400,
+                content={"error": f"Error searching teams: {result.stderr}"}
+            )
+        
+        # Parse the output
+        try:
+            search_results = json.loads(result.stdout)
+            return search_results
+        except json.JSONDecodeError:
+            return JSONResponse(
+                status_code=500,
+                content={"error": "Failed to parse search results", "raw_output": result.stdout[:200]}
+            )
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"error": f"Failed to search teams: {str(e)}"}
         )
 
 # Determine the frontend directory based on the environment

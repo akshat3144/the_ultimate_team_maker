@@ -593,6 +593,192 @@ document.addEventListener("DOMContentLoaded", () => {
     teamGenSection.scrollIntoView({ behavior: "smooth" });
   }
 
+  // Add new DOM elements for search functionality
+  const searchCategoryBtn = document.getElementById("search-category-btn");
+  const searchCategoryModal = new bootstrap.Modal(document.getElementById('searchCategoryModal'));
+  const categorySelectDropdown = document.getElementById("category-select");
+  const searchResultsContainer = document.getElementById("search-results-container");
+  const downloadSearchResultsBtn = document.getElementById("download-search-results-btn");
+
+  // Add new event listeners
+  if (searchCategoryBtn) {
+    searchCategoryBtn.addEventListener("click", openSearchModal);
+  }
+  
+  if (document.getElementById("perform-search-btn")) {
+    document.getElementById("perform-search-btn").addEventListener("click", searchTeamsByCategory);
+  }
+  
+  if (downloadSearchResultsBtn) {
+    downloadSearchResultsBtn.addEventListener("click", downloadSearchResults);
+  }
+
+  // State for search results
+  let searchResults = null;
+
+  // Open search modal and populate category dropdown
+  function openSearchModal() {
+    // Only show categories that were used in team generation
+    if (selectedMethod !== "random" && selectedCategories.length > 0) {
+      categorySelectDropdown.innerHTML = "";
+      
+      selectedCategories.forEach(category => {
+        const option = document.createElement("option");
+        option.value = category.index;
+        option.textContent = category.name;
+        categorySelectDropdown.appendChild(option);
+      });
+      
+      searchCategoryModal.show();
+    } else if (selectedMethod === "random") {
+      showToast("Search by category is not available for random teams.", "error");
+    } else {
+      showToast("Please select at least one category first.", "error");
+    }
+  }
+
+  // Search teams by category
+  async function searchTeamsByCategory() {
+    const categoryIndex = parseInt(categorySelectDropdown.value);
+    
+    if (isNaN(categoryIndex)) {
+      showToast("Please select a category to search by.", "error");
+      return;
+    }
+    
+    // Show loading state
+    const searchBtn = document.getElementById("perform-search-btn");
+    searchBtn.disabled = true;
+    searchBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Searching...';
+    
+    const request = {
+      file_path: uploadedFilePath,
+      generation_type: selectedMethod,
+      num_teams: parseInt(numTeamsInput.value),
+      category_index: categoryIndex,
+      categories: selectedCategories.map(cat => ({
+        index: cat.index,
+        weight: cat.weight,
+        name: cat.name
+      }))
+    };
+    
+    try {
+      const response = await fetch("/search-teams-by-category/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(request),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        searchResults = data;
+        displaySearchResults();
+        
+        // Enable download button
+        downloadSearchResultsBtn.disabled = false;
+        
+        showToast("Teams searched successfully!", "success");
+      } else {
+        showToast(data.error || "Failed to search teams by category.", "error");
+      }
+    } catch (error) {
+      showToast("An error occurred while searching teams.", "error");
+      console.error("Error:", error);
+    } finally {
+      // Reset button state
+      searchBtn.disabled = false;
+      searchBtn.innerHTML = '<i class="fas fa-search me-2"></i>Search';
+    }
+  }
+
+  // Display search results
+  function displaySearchResults() {
+    if (!searchResults || !searchResults.results) {
+      searchResultsContainer.innerHTML = '<div class="alert alert-info">No results found.</div>';
+      return;
+    }
+    
+    searchResultsContainer.innerHTML = `
+      <h5 class="mb-3">Teams Ranked by ${searchResults.category_name}</h5>
+      <div class="table-responsive">
+        <table class="table table-striped table-hover">
+          <thead class="table-primary">
+            <tr>
+              <th>Rank</th>
+              <th>Team</th>
+              <th>Total Score</th>
+              <th>Members</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${searchResults.results.map(result => `
+              <tr>
+                <td class="text-center">
+                  ${getRankBadge(result.rank)}
+                </td>
+                <td>Team ${result.team_number}</td>
+                <td>${result.score.toFixed(2)}</td>
+                <td>
+                  <ul class="list-group">
+                    ${result.members.map(member => `
+                      <li class="list-group-item d-flex justify-content-between align-items-center">
+                        ${member.name}
+                        <span class="badge bg-primary rounded-pill">${member.individual_score.toFixed(1)}</span>
+                      </li>
+                    `).join('')}
+                  </ul>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+  
+  // Helper function to get rank badge with appropriate color
+  function getRankBadge(rank) {
+    let badgeClass = "bg-secondary";
+    if (rank === 1) badgeClass = "bg-warning text-dark"; // Gold
+    else if (rank === 2) badgeClass = "bg-light text-dark border"; // Silver
+    else if (rank === 3) badgeClass = "bg-danger"; // Bronze
+    
+    return `<span class="badge ${badgeClass}">${rank}</span>`;
+  }
+
+  // Download search results as CSV
+  function downloadSearchResults() {
+    if (!searchResults || !searchResults.results) {
+      showToast("No search results to download.", "error");
+      return;
+    }
+    
+    let csvContent = `Rank,Team,Total ${searchResults.category_name} Score,Member Name,Individual Score\n`;
+    
+    searchResults.results.forEach(result => {
+      result.members.forEach(member => {
+        csvContent += `${result.rank},Team ${result.team_number},${result.score.toFixed(2)},${member.name},${member.individual_score.toFixed(1)}\n`;
+      });
+    });
+    
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute(
+      "download",
+      `team-search-by-${searchResults.category_name.toLowerCase()}-${new Date().toISOString().slice(0, 10)}.csv`
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    showToast("Search results downloaded successfully!", "success");
+  }
+
   // Initialize app
   init();
 });
