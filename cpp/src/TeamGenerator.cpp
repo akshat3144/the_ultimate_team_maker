@@ -59,7 +59,56 @@ void TeamGenerator::readPersonsFromFile(const string &filename, const vector<int
         {
             string scoreStr;
             getline(ss, scoreStr, ',');
-            double score = stod(scoreStr);
+            double score = 0.0;
+            try
+            {
+                // Trim whitespace
+                scoreStr.erase(0, scoreStr.find_first_not_of(" \t\r\n"));
+                scoreStr.erase(scoreStr.find_last_not_of(" \t\r\n") + 1);
+
+                if (!scoreStr.empty())
+                {
+                    // Manual conversion
+                    double val = 0.0;
+                    double fractional = 0.0;
+                    double div = 1.0;
+                    bool decimal_point = false;
+                    bool negative = false;
+
+                    for (char c : scoreStr)
+                    {
+                        if (c == '-' && val == 0.0 && !decimal_point && !negative)
+                        {
+                            negative = true;
+                        }
+                        else if (c == '.' || c == ',')
+                        {
+                            decimal_point = true;
+                        }
+                        else if (c >= '0' && c <= '9')
+                        {
+                            if (decimal_point)
+                            {
+                                div *= 10.0;
+                                fractional = fractional * 10.0 + (c - '0');
+                            }
+                            else
+                            {
+                                val = val * 10.0 + (c - '0');
+                            }
+                        }
+                    }
+
+                    score = val + (fractional / div);
+                    if (negative)
+                        score = -score;
+                }
+            }
+            catch (...)
+            {
+                // Fallback to 0.0 if conversion fails
+                score = 0.0;
+            }
             scores[i] = score;
 
             // Check if the current category is selected
