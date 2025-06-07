@@ -1,4 +1,3 @@
-/* 5\Desktop\Projects\Team Maker\frontend\styles.css */
 :root {
     --primary-color: #4361ee;
     --primary-dark: #3a56d4;
@@ -15,13 +14,468 @@
 }
 
 body {
-    font-family: 'Poppins', sans-serif;
-    background-color: #f8f9fa;
-    color: #333;
+    font-family: 'Inter', sans-serif;
+    background-color: #ffffff;
+    color: #444;
     line-height: 1.6;
-    padding-bottom: 2rem;
+    padding-bottom: 0; /* Updated */
+    scroll-behavior: smooth;
+    overflow-x: hidden;
 }
 
+/* New Navbar Styles */
+.navbar {
+    padding: 1rem 0;
+    background-color: #fff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.navbar.scrolled {
+    padding: 0.5rem 0;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--dark-color);
+}
+
+.nav-link {
+    font-weight: 500;
+    color: #666;
+    padding: 0.5rem 1rem;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover, 
+.nav-link.active {
+    color: var(--primary-color);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    border-radius: 50px;
+    padding: 0.5rem 1.25rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+    border-color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+}
+
+/* Hero Section */
+.hero-section {
+    padding: 9rem 0 6rem;
+    background: linear-gradient(135deg, #f5f7ff 0%, #ffffff 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="1.5" fill="%234361ee" opacity="0.2"/></svg>');
+    background-size: 30px 30px;
+    z-index: 0;
+}
+
+.hero-section .container {
+    position: relative;
+    z-index: 1;
+}
+
+.hero-section h1 {
+    color: var(--dark-color);
+    font-weight: 800;
+    line-height: 1.3;
+    margin-bottom: 1.5rem;
+}
+
+.hero-section p {
+    color: #666;
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+}
+
+.hero-image {
+    max-width: 90%;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
+
+/* Section Padding */
+.section-padding {
+    padding: 6rem 0;
+}
+
+/* Section Headers */
+.section-header {
+    margin-bottom: 1.5rem;
+    position: relative;
+    padding-bottom: 0.75rem;
+}
+
+.section-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background-color: var(--primary-color);
+    border-radius: 3px;
+}
+
+.section-header h2 {
+    font-weight: 700;
+    color: var(--dark-color);
+    margin-bottom: 0;
+}
+
+/* CLI Section Styles */
+.cli-steps {
+    position: relative;
+    padding-left: 2.5rem;
+}
+
+.cli-steps::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 20px;
+    height: 100%;
+    width: 2px;
+    background-color: #e9ecef;
+}
+
+.cli-step {
+    position: relative;
+    margin-bottom: 3rem;
+}
+
+.cli-step:last-child {
+    margin-bottom: 0;
+}
+
+.step-number {
+    position: absolute;
+    left: -2.5rem;
+    top: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+
+.step-content {
+    padding-bottom: 1rem;
+}
+
+.step-content h5 {
+    font-weight: 600;
+    color: var(--dark-color);
+    margin-bottom: 0.5rem;
+}
+
+.code-block {
+    background-color: #282c34;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    overflow: auto;
+    margin-top: 0.5rem;
+}
+
+.code-block pre {
+    margin-bottom: 0;
+    color: #abb2bf;
+}
+
+.code-block code {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9rem;
+}
+
+/* CLI Terminal Card */
+.cli-download-card {
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-top: 2rem;
+}
+
+.terminal-header {
+    background-color: #282c34;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.terminal-buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-right: 1rem;
+}
+
+.terminal-circle {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.red { background-color: #ff5f56; }
+.yellow { background-color: #ffbd2e; }
+.green { background-color: #27c93f; }
+
+.terminal-title {
+    color: #abb2bf;
+    font-size: 0.85rem;
+    font-family: monospace;
+}
+
+.terminal-body {
+    background-color: #f8f9fa;
+    padding: 1.5rem;
+}
+
+.terminal-content {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9rem;
+    color: #333;
+    line-height: 1.5;
+}
+
+.terminal-content p {
+    margin-bottom: 0.5rem;
+}
+
+.terminal-content ul {
+    padding-left: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.terminal-footer {
+    padding: 1rem;
+    background-color: #fff;
+    border-top: 1px solid #eee;
+}
+
+/* Updated Footer Styles */
+.footer {
+    background-color: #0f172a;
+    color: #94a3b8;
+    padding: 5rem 0 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('data:image/svg+xml;utf8,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="1.5" fill="%23ffffff" opacity="0.03"/></svg>');
+    background-size: 30px 30px;
+    pointer-events: none;
+}
+
+/* Footer brand */
+.footer-brand {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 1.25rem;
+    display: inline-block;
+}
+
+.footer-description {
+    color: #cbd5e1;
+    line-height: 1.7;
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Section headings */
+.footer-heading {
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    padding-bottom: 0.75rem;
+}
+
+.footer-heading::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 30px;
+    height: 2px;
+    background-color: var(--primary-color);
+}
+
+/* Navigation lists */
+.footer-nav, .footer-contact, .footer-legal {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-nav li {
+    margin-bottom: 1rem;
+}
+
+.footer-nav a {
+    color: #cbd5e1;
+    text-decoration: none;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+}
+
+.footer-nav a:hover {
+    color: white;
+    transform: translateX(5px);
+}
+
+/* Contact links */
+.footer-contact li {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.footer-contact i {
+    color: var(--primary-color);
+    font-size: 1rem;
+    margin-right: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+.footer-contact a {
+    color: #cbd5e1;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.footer-contact a:hover {
+    color: white;
+}
+
+/* GitHub button */
+.github-btn {
+    display: flex;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    border-radius: 8px;
+    padding: 0.75rem 1.25rem;
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition);
+    margin-top: 0.5rem;
+}
+
+.github-btn:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-3px);
+    color: white;
+}
+
+/* Footer CTA */
+.footer-cta {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.footer-cta .btn {
+    padding: 0.5rem 1.25rem;
+}
+
+/* Footer bottom area */
+.footer-bottom {
+    margin-top: 4rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.copyright {
+    color: #64748b;
+    font-size: 0.875rem;
+    margin: 0;
+    text-align: center;
+}
+
+.copyright a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.copyright a:hover {
+    color: white;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .footer {
+        padding: 4rem 0 2rem;
+    }
+    
+    .footer-cta {
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: flex-start;
+    }
+    
+    .footer-cta .btn {
+        width: 100%;
+        margin-right: 0 !important;
+    }
+    
+    .footer-heading {
+        margin-top: 1.5rem;
+    }
+}
+
+/* ... existing code ... */
+
+/* Warning for CLI mention */
+.warning-cli {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    background-color: rgba(67, 97, 238, 0.1);
+}
+
+/* Keep the existing styles */
 .container {
     max-width: 1140px;
     padding: 0 1rem;
@@ -41,29 +495,6 @@ body {
 .content-section:hover {
     box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.15);
     transform: translateY(-3px);
-}
-
-.section-header {
-    margin-bottom: 1.5rem;
-    position: relative;
-    padding-bottom: 0.75rem;
-}
-
-.section-header::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 60px;
-    height: 3px;
-    background-color: var(--primary-color);
-    border-radius: 3px;
-}
-
-.section-header h2 {
-    font-weight: 600;
-    color: var(--dark-color);
-    margin-bottom: 0;
 }
 
 /* Upload Area */
@@ -289,7 +720,7 @@ body {
 /* Toast Notifications */
 .toast-container {
     position: fixed;
-    top: 1rem;
+    top: 5rem;  /* Updated to account for fixed navbar */
     right: 1rem;
     z-index: 1050;
 }
@@ -337,6 +768,35 @@ body {
     
     .upload-label {
         height: 150px;
+    }
+    
+    .hero-section {
+        padding: 7rem 0 4rem;
+        text-align: center;
+    }
+    
+    .hero-section .btn {
+        margin-bottom: 0.5rem;
+    }
+    
+    .hero-image {
+        max-width: 70%;
+        margin-top: 2rem;
+    }
+    
+    .cli-steps {
+        padding-left: 2rem;
+    }
+    
+    .step-number {
+        width: 32px;
+        height: 32px;
+        font-size: 0.8rem;
+        left: -2rem;
+    }
+    
+    .cli-download-card {
+        margin-top: 3rem;
     }
 }
 
@@ -427,4 +887,41 @@ body {
 .rank-3 {
     background-color: #cd7f32; /* Bronze */
     color: white;
+}
+
+/* Add smooth scrolling behavior */
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 80px; /* Adjusted for fixed navbar */
+}
+
+/* Back to top button */
+.back-to-top {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.back-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.back-to-top:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-3px);
 }
